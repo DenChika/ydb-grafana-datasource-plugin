@@ -6,8 +6,8 @@ toolchain go1.24.4
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/grafana/grafana-plugin-sdk-go v0.277.1
-	github.com/grafana/sqlds/v4 v4.2.3
+	github.com/grafana/grafana-plugin-sdk-go v0.266.0
+	github.com/grafana/sqlds/v4 v4.1.7
 	github.com/shopspring/decimal v1.3.1
 	github.com/stretchr/testify v1.10.0
 	github.com/ydb-platform/ydb-go-sdk/v3 v3.99.13
