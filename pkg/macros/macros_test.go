@@ -21,7 +21,7 @@ type MockDB struct {
 }
 
 func (h *YdbDriver) Macros() sqlds.Macros {
-	var C = plugin.Ydb{}
+	C := plugin.Ydb{}
 	return C.Macros()
 }
 
@@ -39,6 +39,7 @@ func TestMacroFromTimestampFilter(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "CAST(1636717526371000 AS TIMESTAMP)", got)
 }
+
 func TestMacroToTimestampFilter(t *testing.T) {
 	from, _ := time.Parse("2006-01-02T15:04:05.000Z", "2021-11-12T11:45:26.371Z")
 	to, _ := time.Parse("2006-01-02T15:04:05.000Z", "2022-11-12T11:45:26.371Z")
@@ -76,6 +77,7 @@ func TestMacroVariableFallback(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "value", got)
 }
+
 func TestMacroVariableFallbackNoValue(t *testing.T) {
 	query := sqlds.Query{
 		RawSQL: "select $__varFallback(fallback, '')",

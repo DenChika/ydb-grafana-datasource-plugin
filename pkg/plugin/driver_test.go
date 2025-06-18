@@ -3,9 +3,10 @@ package plugin
 import (
 	"encoding/json"
 	"fmt"
+	"testing"
+
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 const (

@@ -3,16 +3,15 @@ package macros
 import (
 	"errors"
 	"fmt"
+	"math"
+
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/data/sqlutil"
-	"math"
 
 	"github.com/grafana/sqlds/v2"
 )
 
-var (
-	ErrInvalidVariableFallback = errors.New("fallback should contain at least one character")
-)
+var ErrInvalidVariableFallback = errors.New("fallback should contain at least one character")
 
 type timeQueryType string
 
@@ -89,7 +88,7 @@ func VariableFallback(query *sqlds.Query, args []string) (string, error) {
 	if len(args) != 2 {
 		return "", backend.DownstreamError(fmt.Errorf("%w: expected 2 arguments, received %d", sqlutil.ErrorBadArgumentCount, len(args)))
 	}
-	var value = args[1]
+	value := args[1]
 	if len(value) == 0 {
 		fallback := args[0]
 		if len(fallback) == 0 {

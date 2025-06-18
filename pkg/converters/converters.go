@@ -3,10 +3,11 @@ package converters
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
 	"reflect"
 	"regexp"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/grafana/grafana-plugin-sdk-go/data"
 	"github.com/grafana/grafana-plugin-sdk-go/data/sqlutil"

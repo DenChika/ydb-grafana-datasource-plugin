@@ -4,9 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"github.com/grafana/sqlds/v2"
 	"path"
 	"time"
+
+	"github.com/grafana/sqlds/v2"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
