@@ -3,13 +3,15 @@ package macros
 import (
 	"errors"
 	"fmt"
+	"github.com/grafana/grafana-plugin-sdk-go/backend"
+	"github.com/grafana/grafana-plugin-sdk-go/data/sqlutil"
+	"math"
 
-	"github.com/grafana/sqlds/v2"
+	"github.com/grafana/sqlds/v4"
 )
 
 var (
-	ErrInvalidMacrosArg 			  = errors.New("invalid value passed to macro function")
-	ErrInvalidVariableFallback 		  = errors.New("fallback should contain at least one character")
+	ErrInvalidVariableFallback = errors.New("fallback should contain at least one character")
 )
 
 type timeQueryType string
@@ -28,19 +30,19 @@ func newTimeFilter(queryType timeQueryType, query *sqlds.Query) (string, error) 
 	return fmt.Sprintf("CAST(%d AS TIMESTAMP)", micros), nil
 }
 
-// FromTimestampFilter return time filter query based on grafana's timepicker's from time
-func FromTimestampFilter(query *sqlds.Query, args []string) (string, error) {
+// FromTimestampFilter return time filter query based on grafana's timepicker's from time in microseconds
+func FromTimestampFilter(query *sqlutil.Query, args []string) (string, error) {
 	return newTimeFilter(timeQueryTypeFrom, query)
 }
 
-// ToTimestampFilter return time filter query based on grafana's timepicker's to time
-func ToTimestampFilter(query *sqlds.Query, args []string) (string, error) {
+// ToTimestampFilter return time filter query based on grafana's timepicker's to time in microseconds
+func ToTimestampFilter(query *sqlutil.Query, args []string) (string, error) {
 	return newTimeFilter(timeQueryTypeTo, query)
 }
 
-func TimestampFilter(query *sqlds.Query, args []string) (string, error) {
+func TimestampFilter(query *sqlutil.Query, args []string) (string, error) {
 	if len(args) != 1 {
-		return "", fmt.Errorf("%w: expected 1 argument, received %d", sqlds.ErrorBadArgumentCount, len(args))
+		return "", backend.DownstreamError(fmt.Errorf("%w: expected 1 argument, received %d", sqlutil.ErrorBadArgumentCount, len(args)))
 	}
 	var (
 		column = args[0]
@@ -50,9 +52,42 @@ func TimestampFilter(query *sqlds.Query, args []string) (string, error) {
 	return fmt.Sprintf("%s >= CAST(%d AS TIMESTAMP) AND %s <=  CAST(%d AS TIMESTAMP)", column, from, column, to), nil
 }
 
-func VariableFallback(query *sqlds.Query, args []string) (string, error) {	
+func DateFilter(query *sqlutil.Query, args []string) (string, error) {
+	if len(args) != 1 {
+		return "", backend.DownstreamError(fmt.Errorf("%w: expected 1 argument, received %d", sqlutil.ErrorBadArgumentCount, len(args)))
+	}
+	var (
+		column = args[0]
+		from   = query.TimeRange.From.UTC().UnixMicro()
+		to     = query.TimeRange.To.UTC().UnixMicro()
+	)
+	return fmt.Sprintf("%s >= CAST(%d AS DATE) AND %s <=  CAST(%d AS DATE)", column, from, column, to), nil
+}
+
+func DateTimeFilter(query *sqlutil.Query, args []string) (string, error) {
 	if len(args) != 2 {
-		return "", fmt.Errorf("%w: expected 2 argument, received %d", sqlds.ErrorBadArgumentCount, len(args))
+		return "", backend.DownstreamError(fmt.Errorf("%w: expected 2 arguments, received %d", sqlutil.ErrorBadArgumentCount, len(args)))
+	}
+	var (
+		dateColumn = args[0]
+		timeColumn = args[1]
+		from       = query.TimeRange.From.UTC().Unix()
+		to         = query.TimeRange.To.UTC().Unix()
+	)
+
+	dateFilter := fmt.Sprintf("%s >= CAST(%d AS DATE) AND %s <=  CAST(%d AS DATE)", dateColumn, from, dateColumn, to)
+	timeFilter := fmt.Sprintf("%s >= CAST(%d AS DATETIME) AND %s <=  CAST(%d AS DATETIME)", timeColumn, from, timeColumn, to)
+	return fmt.Sprintf("%s AND %s", dateFilter, timeFilter), nil
+}
+
+func IntervalSeconds(query *sqlutil.Query, args []string) (string, error) {
+	seconds := math.Max(query.Interval.Seconds(), 1)
+	return fmt.Sprintf("%d", int(seconds)), nil
+}
+
+func VariableFallback(query *sqlutil.Query, args []string) (string, error) {
+	if len(args) != 2 {
+		return "", backend.DownstreamError(fmt.Errorf("%w: expected 2 arguments, received %d", sqlutil.ErrorBadArgumentCount, len(args)))
 	}
 	var value = args[1]
 	if len(value) == 0 {
@@ -65,3 +100,14 @@ func VariableFallback(query *sqlds.Query, args []string) (string, error) {
 	return value, nil
 }
 
+// Macros is a map of all macro functions
+var Macros = map[string]sqlutil.MacroFunc{
+	"fromTime":       FromTimestampFilter,
+	"toTime":         ToTimestampFilter,
+	"timeFilter":     TimestampFilter,
+	"dateFilter":     DateFilter,
+	"dateTimeFilter": DateTimeFilter,
+	"dt":             DateTimeFilter,
+	"interval_s":     IntervalSeconds,
+	"varFallback":    VariableFallback,
+}
