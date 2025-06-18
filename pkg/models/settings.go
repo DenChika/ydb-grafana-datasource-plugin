@@ -45,15 +45,19 @@ func LoadSettings(source backend.DataSourceInstanceSettings) (*Settings, error) 
 			Secrets:  loadSecretPluginSettings(source.DecryptedSecureJSONData),
 		}, nil
 	}
+
 	settings := Settings{
 		AuthKind: defaultAuthKind,
 		Timeout:  "10",
 	}
+
 	err := json.Unmarshal(source.JSONData, &settings)
 	if err != nil {
-		return nil, fmt.Errorf("could not unmarshal PluginSettings json: %w", err)
+		return nil, fmt.Errorf("%s: %w", err.Error(), ErrInvalidJSON)
 	}
+
 	settings.Secrets = loadSecretPluginSettings(source.DecryptedSecureJSONData)
+
 	return validateSettings(settings)
 }
 
@@ -68,31 +72,36 @@ func loadSecretPluginSettings(source map[string]string) *SecretPluginSettings {
 
 func validateSettings(settings Settings) (*Settings, error) {
 	if settings.DBEndpoint == "" {
-		return nil, fmt.Errorf("%w", ErrEndpointEmpty)
+		return nil, backend.DownstreamError(fmt.Errorf("%w", ErrEndpointEmpty))
 	}
 	if settings.DBLocation == "" {
-		return nil, fmt.Errorf("%w", ErrDBLocationEmpty)
+		return nil, backend.DownstreamError(fmt.Errorf("%w", ErrDBLocationEmpty))
 	}
+
 	switch settings.AuthKind {
 	case "ServiceAccountKey":
 		if settings.Secrets.ServiceAccAuthAccessKey == "" {
-			return nil, fmt.Errorf("%w", ErrServiceAccAuthAccessKeyEmpty)
+			return nil, backend.DownstreamError(fmt.Errorf("%w", ErrServiceAccAuthAccessKeyEmpty))
 		}
 	case "AccessToken":
 		if settings.Secrets.AccessToken == "" {
-			return nil, fmt.Errorf("%w", ErrAccessTokenEmpty)
+			return nil, backend.DownstreamError(fmt.Errorf("%w", ErrAccessTokenEmpty))
 		}
 	case "UserPassword":
 		if settings.Secrets.Password == "" || settings.User == "" {
-			return nil, fmt.Errorf("%w", ErrUserOrPasswordEmpty)
+			return nil, backend.DownstreamError(fmt.Errorf("%w", ErrUserOrPasswordEmpty))
 		}
 	}
-	settings.Dsn = settings.DBEndpoint + settings.DBLocation
+
+	settings.Dsn = fmt.Sprintf("%s%s", settings.DBEndpoint, settings.DBLocation)
 	settings.IsSecureConnection = strings.HasPrefix(settings.DBEndpoint, "grpcs://")
+
 	t, err := strconv.Atoi(settings.Timeout)
 	if err != nil {
-		return nil, fmt.Errorf("timeout %s invalid: %w", settings.Timeout, err)
+		return nil, backend.DownstreamError(fmt.Errorf("timeout %s invalid: %w", settings.Timeout, err))
 	}
+
 	settings.TimeoutDuration = time.Duration(t) * time.Second
+
 	return &settings, nil
 }

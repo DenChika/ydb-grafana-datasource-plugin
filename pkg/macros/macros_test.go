@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
-	"github.com/grafana/sqlds/v2"
+	"github.com/grafana/sqlds/v4"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/ydb/grafana-ydb-datasource/pkg/macros"
@@ -70,7 +70,7 @@ func TestMacroTimestampFilter(t *testing.T) {
 
 func TestMacroVariableFallback(t *testing.T) {
 	query := sqlds.Query{
-		RawSQL:   "select $__varFallback(fallback, value)",
+		RawSQL: "select $__varFallback(fallback, value)",
 	}
 	got, err := macros.VariableFallback(&query, []string{"fallback", "value"})
 	assert.Nil(t, err)
@@ -78,7 +78,7 @@ func TestMacroVariableFallback(t *testing.T) {
 }
 func TestMacroVariableFallbackNoValue(t *testing.T) {
 	query := sqlds.Query{
-		RawSQL:   "select $__varFallback(fallback, '')",
+		RawSQL: "select $__varFallback(fallback, '')",
 	}
 	got, err := macros.VariableFallback(&query, []string{"fallback", ""})
 	assert.Nil(t, err)
