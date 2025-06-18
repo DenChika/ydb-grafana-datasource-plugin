@@ -7,7 +7,7 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/data/sqlutil"
 	"math"
 
-	"github.com/grafana/sqlds/v4"
+	"github.com/grafana/sqlds/v2"
 )
 
 var (
@@ -31,16 +31,16 @@ func newTimeFilter(queryType timeQueryType, query *sqlds.Query) (string, error) 
 }
 
 // FromTimestampFilter return time filter query based on grafana's timepicker's from time in microseconds
-func FromTimestampFilter(query *sqlutil.Query, args []string) (string, error) {
+func FromTimestampFilter(query *sqlds.Query, args []string) (string, error) {
 	return newTimeFilter(timeQueryTypeFrom, query)
 }
 
 // ToTimestampFilter return time filter query based on grafana's timepicker's to time in microseconds
-func ToTimestampFilter(query *sqlutil.Query, args []string) (string, error) {
+func ToTimestampFilter(query *sqlds.Query, args []string) (string, error) {
 	return newTimeFilter(timeQueryTypeTo, query)
 }
 
-func TimestampFilter(query *sqlutil.Query, args []string) (string, error) {
+func TimestampFilter(query *sqlds.Query, args []string) (string, error) {
 	if len(args) != 1 {
 		return "", backend.DownstreamError(fmt.Errorf("%w: expected 1 argument, received %d", sqlutil.ErrorBadArgumentCount, len(args)))
 	}
@@ -52,7 +52,7 @@ func TimestampFilter(query *sqlutil.Query, args []string) (string, error) {
 	return fmt.Sprintf("%s >= CAST(%d AS TIMESTAMP) AND %s <=  CAST(%d AS TIMESTAMP)", column, from, column, to), nil
 }
 
-func DateFilter(query *sqlutil.Query, args []string) (string, error) {
+func DateFilter(query *sqlds.Query, args []string) (string, error) {
 	if len(args) != 1 {
 		return "", backend.DownstreamError(fmt.Errorf("%w: expected 1 argument, received %d", sqlutil.ErrorBadArgumentCount, len(args)))
 	}
@@ -64,7 +64,7 @@ func DateFilter(query *sqlutil.Query, args []string) (string, error) {
 	return fmt.Sprintf("%s >= CAST(%d AS DATE) AND %s <=  CAST(%d AS DATE)", column, from, column, to), nil
 }
 
-func DateTimeFilter(query *sqlutil.Query, args []string) (string, error) {
+func DateTimeFilter(query *sqlds.Query, args []string) (string, error) {
 	if len(args) != 2 {
 		return "", backend.DownstreamError(fmt.Errorf("%w: expected 2 arguments, received %d", sqlutil.ErrorBadArgumentCount, len(args)))
 	}
@@ -80,12 +80,12 @@ func DateTimeFilter(query *sqlutil.Query, args []string) (string, error) {
 	return fmt.Sprintf("%s AND %s", dateFilter, timeFilter), nil
 }
 
-func IntervalSeconds(query *sqlutil.Query, args []string) (string, error) {
+func IntervalSeconds(query *sqlds.Query, args []string) (string, error) {
 	seconds := math.Max(query.Interval.Seconds(), 1)
 	return fmt.Sprintf("%d", int(seconds)), nil
 }
 
-func VariableFallback(query *sqlutil.Query, args []string) (string, error) {
+func VariableFallback(query *sqlds.Query, args []string) (string, error) {
 	if len(args) != 2 {
 		return "", backend.DownstreamError(fmt.Errorf("%w: expected 2 arguments, received %d", sqlutil.ErrorBadArgumentCount, len(args)))
 	}
@@ -101,7 +101,7 @@ func VariableFallback(query *sqlutil.Query, args []string) (string, error) {
 }
 
 // Macros is a map of all macro functions
-var Macros = map[string]sqlutil.MacroFunc{
+var Macros = map[string]sqlds.MacroFunc{
 	"fromTime":       FromTimestampFilter,
 	"toTime":         ToTimestampFilter,
 	"timeFilter":     TimestampFilter,
