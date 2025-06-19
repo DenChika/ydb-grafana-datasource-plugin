@@ -23,25 +23,21 @@ type Converter struct {
 
 var matchRegexes = map[string]*regexp.Regexp{
 	"Decimal":           regexp.MustCompile(`^Decimal\(`),
-	"Json":              regexp.MustCompile(`^Json\(`),
-	"Uuid":              regexp.MustCompile(`^Uuid\(`),
-	"List":              regexp.MustCompile(`^List<.*>`),
-	"Dict":              regexp.MustCompile(`^Dict<.*>`),
-	"Set":               regexp.MustCompile(`^Set<.*>`),
-	"Tuple":             regexp.MustCompile(`^Tuple<.*>`),
-	"Struct":            regexp.MustCompile(`^Struct<.*>`),
-	"Variant":           regexp.MustCompile(`^Variant<.*>`),
-	"Enum":              regexp.MustCompile(`^Enum<.*>`),
+	"List":              regexp.MustCompile(`^List<`),
+	"Dict":              regexp.MustCompile(`^Dict<`),
+	"Set":               regexp.MustCompile(`^Set<`),
+	"Tuple":             regexp.MustCompile(`^Tuple<`),
+	"Struct":            regexp.MustCompile(`^Struct<`),
+	"Variant":           regexp.MustCompile(`^Variant<`),
+	"Enum":              regexp.MustCompile(`^Enum<`),
 	"Optional<Decimal>": regexp.MustCompile(`^Optional<Decimal\(`),
-	"Optional<Json>":    regexp.MustCompile(`^Optional<Json\(`),
-	"Optional<Uuid>":    regexp.MustCompile(`^Optional<Uuid\(`),
-	"Optional<List>":    regexp.MustCompile(`^Optional<List\(`),
-	"Optional<Dict>":    regexp.MustCompile(`^Optional<Dict\(`),
-	"Optional<Set>":     regexp.MustCompile(`^Optional<Set\(`),
-	"Optional<Tuple>":   regexp.MustCompile(`^Optional<Tuple\(`),
-	"Optional<Struct>":  regexp.MustCompile(`^Optional<Struct\(`),
-	"Optional<Variant>": regexp.MustCompile(`^Optional<Variant\(`),
-	"Optional<Enum>":    regexp.MustCompile(`^Optional<Enum\(`),
+	"Optional<List>":    regexp.MustCompile(`^Optional<List<`),
+	"Optional<Dict>":    regexp.MustCompile(`^Optional<Dict<`),
+	"Optional<Set>":     regexp.MustCompile(`^Optional<Set<`),
+	"Optional<Tuple>":   regexp.MustCompile(`^Optional<Tuple<`),
+	"Optional<Struct>":  regexp.MustCompile(`^Optional<Struct<`),
+	"Optional<Variant>": regexp.MustCompile(`^Optional<Variant<`),
+	"Optional<Enum>":    regexp.MustCompile(`^Optional<Enum<`),
 }
 
 var Converters = map[string]Converter{
@@ -104,16 +100,14 @@ var Converters = map[string]Converter{
 		scanType:  reflect.PointerTo(reflect.TypeOf("")),
 	},
 	"Json": {
-		convert:    jsonConvert,
-		fieldType:  data.FieldTypeJSON,
-		matchRegex: matchRegexes["Json"],
-		scanType:   reflect.TypeOf((*interface{})(nil)).Elem(),
+		convert:   jsonConvert,
+		fieldType: data.FieldTypeJSON,
+		scanType:  reflect.TypeOf((*interface{})(nil)).Elem(),
 	},
 	"Uuid": {
-		convert:    uuidConvert,
-		fieldType:  data.FieldTypeString,
-		matchRegex: matchRegexes["Uuid"],
-		scanType:   reflect.PointerTo(reflect.TypeOf("")),
+		convert:   uuidConvert,
+		fieldType: data.FieldTypeString,
+		scanType:  reflect.PointerTo(reflect.TypeOf("")),
 	},
 	"Date": {
 		fieldType: data.FieldTypeTime,
@@ -257,16 +251,14 @@ var Converters = map[string]Converter{
 		scanType:  reflect.PointerTo(reflect.PointerTo(reflect.TypeOf(""))),
 	},
 	"Optional<Json>": {
-		convert:    jsonConvert,
-		fieldType:  data.FieldTypeJSON,
-		matchRegex: matchRegexes["Optional<Json>"],
-		scanType:   reflect.PointerTo(reflect.TypeOf((*interface{})(nil)).Elem()),
+		convert:   jsonNullConvert,
+		fieldType: data.FieldTypeJSON,
+		scanType:  reflect.PointerTo(reflect.TypeOf((*interface{})(nil)).Elem()),
 	},
 	"Optional<Uuid>": {
-		convert:    uuidNullConvert,
-		fieldType:  data.FieldTypeNullableString,
-		matchRegex: matchRegexes["Optional<Uuid>"],
-		scanType:   reflect.PointerTo(reflect.PointerTo(reflect.TypeOf(""))),
+		convert:   uuidNullConvert,
+		fieldType: data.FieldTypeNullableString,
+		scanType:  reflect.PointerTo(reflect.PointerTo(reflect.TypeOf(""))),
 	},
 	"Optional<Date>": {
 		fieldType: data.FieldTypeNullableTime,
@@ -310,43 +302,43 @@ var Converters = map[string]Converter{
 		fieldType: data.FieldTypeNullableInt64,
 	},
 	"Optional<List>": {
-		convert:    jsonConvert,
+		convert:    jsonNullConvert,
 		fieldType:  data.FieldTypeJSON,
 		matchRegex: matchRegexes["Optional<List>"],
 		scanType:   reflect.PointerTo(reflect.TypeOf((*interface{})(nil)).Elem()),
 	},
 	"Optional<Dict>": {
-		convert:    jsonConvert,
+		convert:    jsonNullConvert,
 		fieldType:  data.FieldTypeJSON,
 		matchRegex: matchRegexes["Optional<Dict>"],
 		scanType:   reflect.PointerTo(reflect.TypeOf((*interface{})(nil)).Elem()),
 	},
 	"Optional<Set>": {
-		convert:    jsonConvert,
+		convert:    jsonNullConvert,
 		fieldType:  data.FieldTypeJSON,
 		matchRegex: matchRegexes["Optional<Set>"],
 		scanType:   reflect.PointerTo(reflect.TypeOf((*interface{})(nil)).Elem()),
 	},
 	"Optional<Tuple>": {
-		convert:    jsonConvert,
+		convert:    jsonNullConvert,
 		fieldType:  data.FieldTypeJSON,
 		matchRegex: matchRegexes["Optional<Tuple>"],
 		scanType:   reflect.PointerTo(reflect.TypeOf((*interface{})(nil)).Elem()),
 	},
 	"Optional<Struct>": {
-		convert:    jsonConvert,
+		convert:    jsonNullConvert,
 		fieldType:  data.FieldTypeJSON,
 		matchRegex: matchRegexes["Optional<Struct>"],
 		scanType:   reflect.PointerTo(reflect.TypeOf((*interface{})(nil)).Elem()),
 	},
 	"Optional<Variant>": {
-		convert:    jsonConvert,
+		convert:    jsonNullConvert,
 		fieldType:  data.FieldTypeJSON,
 		matchRegex: matchRegexes["Optional<Variant>"],
 		scanType:   reflect.PointerTo(reflect.TypeOf((*interface{})(nil)).Elem()),
 	},
 	"Optional<Enum>": {
-		convert:    jsonConvert,
+		convert:    jsonNullConvert,
 		fieldType:  data.FieldTypeJSON,
 		matchRegex: matchRegexes["Optional<Enum>"],
 		scanType:   reflect.PointerTo(reflect.TypeOf((*interface{})(nil)).Elem()),
@@ -409,6 +401,26 @@ func jsonConvert(in interface{}) (interface{}, error) {
 	return &rawJSON, nil
 }
 
+func jsonNullConvert(in interface{}) (interface{}, error) {
+	if in == nil {
+		return nil, nil
+	}
+	v, ok := in.(**interface{})
+	if !ok {
+		return nil, fmt.Errorf("invalid json - %v", in)
+	}
+	if *v == nil {
+		return nil, nil
+	}
+	jBytes, err := json.Marshal(*v)
+	if err != nil {
+		return nil, err
+	}
+	rawJSON := json.RawMessage(jBytes)
+	result := &rawJSON
+	return &result, nil
+}
+
 func uuidConvert(in interface{}) (interface{}, error) {
 	if in == nil {
 		return (*string)(nil), nil
@@ -433,7 +445,7 @@ func uuidNullConvert(in interface{}) (interface{}, error) {
 		return (*string)(nil), nil
 	}
 	f := (**v).String()
-	return f, nil
+	return &f, nil
 }
 
 func intervalConvert(in interface{}) (interface{}, error) {
