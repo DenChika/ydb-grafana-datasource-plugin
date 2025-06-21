@@ -139,14 +139,14 @@ func TestInterpolate(t *testing.T) {
 			name:   "YDB fromTimestamp and toTimestamp",
 		},
 		{
-			input:  "SELECT * FROM foo WHERE $__timestampFilter(sth)",
+			input:  "SELECT * FROM foo WHERE $__timeFilter(sth)",
 			output: "SELECT * FROM foo WHERE sth >= CAST(1636717526371000 AS TIMESTAMP) AND sth <= CAST(1668253526371000 AS TIMESTAMP)",
-			name:   "YDB timestampFilter",
+			name:   "YDB timeFilter",
 		},
 		{
-			input:  "SELECT * FROM foo WHERE $__timestampFilter(sth )",
+			input:  "SELECT * FROM foo WHERE $__timeFilter(sth )",
 			output: "SELECT * FROM foo WHERE sth >= CAST(1636717526371000 AS TIMESTAMP) AND sth <= CAST(1668253526371000 AS TIMESTAMP)",
-			name:   "YDB timestampFilter with spaces",
+			name:   "YDB timeFilter with spaces",
 		},
 		{
 			input:  "SELECT * FROM foo WHERE $__dateFilter(sth)",

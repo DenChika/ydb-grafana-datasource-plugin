@@ -101,10 +101,10 @@ func VariableFallback(query *sqlds.Query, args []string) (string, error) {
 
 // Macros is a map of all macro functions
 var Macros = map[string]sqlds.MacroFunc{
-	"fromTimestamp":   FromTimestampFilter,
-	"toTimestamp":     ToTimestampFilter,
-	"timestampFilter": TimestampFilter,
-	"dateFilter":      DateFilter,
-	"dateTimeFilter":  DateTimeFilter,
-	"varFallback":     VariableFallback,
+	"fromTimestamp":  FromTimestampFilter,
+	"toTimestamp":    ToTimestampFilter,
+	"timeFilter":     TimestampFilter,
+	"dateFilter":     DateFilter,
+	"dateTimeFilter": DateTimeFilter,
+	"varFallback":    VariableFallback,
 }
