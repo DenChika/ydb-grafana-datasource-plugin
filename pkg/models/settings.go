@@ -12,7 +12,12 @@ import (
 
 type AuthKind string
 
-const defaultAuthKind AuthKind = `ServiceAccountKey`
+const (
+	defaultAuthKind   AuthKind = `ServiceAccountKey`
+	defaultDBEndpoint          = "grpc://localhost:2136"
+	defaultDBLocation          = "/local"
+	defaultTimeout             = "10"
+)
 
 // Settings - data loaded from grafana settings database
 type Settings struct {
@@ -40,15 +45,20 @@ type SettingsOptionFunc func(settings *Settings)
 func LoadSettings(source backend.DataSourceInstanceSettings) (*Settings, error) {
 	if source.JSONData == nil || len(source.JSONData) < 1 {
 		// If no settings have been saved return default values
-		return &Settings{
-			AuthKind: defaultAuthKind,
-			Secrets:  loadSecretPluginSettings(source.DecryptedSecureJSONData),
-		}, nil
+		settings := Settings{
+			AuthKind:   defaultAuthKind,
+			DBEndpoint: defaultDBEndpoint,
+			DBLocation: defaultDBLocation,
+			Secrets:    loadSecretPluginSettings(source.DecryptedSecureJSONData),
+			Timeout:    defaultTimeout,
+		}
+
+		return validateSettings(settings)
 	}
 
 	settings := Settings{
 		AuthKind: defaultAuthKind,
-		Timeout:  "10",
+		Timeout:  defaultTimeout,
 	}
 
 	err := json.Unmarshal(source.JSONData, &settings)
