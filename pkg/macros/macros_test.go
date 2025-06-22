@@ -2,13 +2,14 @@ package macros_test
 
 import (
 	"fmt"
+	"github.com/grafana/grafana-plugin-sdk-go/data/sqlutil"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/require"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
-	"github.com/grafana/sqlds/v2"
+	"github.com/grafana/sqlds/v4"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/ydb/grafana-ydb-datasource/pkg/macros"
@@ -23,7 +24,7 @@ type MockDB struct {
 	YdbDriver
 }
 
-func (h *YdbDriver) Macros() sqlds.Macros {
+func (h *YdbDriver) Macros() sqlutil.Macros {
 	C := plugin.Ydb{}
 	return C.Macros()
 }
@@ -31,7 +32,7 @@ func (h *YdbDriver) Macros() sqlds.Macros {
 func TestMacroFromTimestampFilter(t *testing.T) {
 	from, _ := time.Parse("2006-01-02T15:04:05.000Z", "2021-11-12T11:45:26.371Z")
 	to, _ := time.Parse("2006-01-02T15:04:05.000Z", "2022-11-12T11:45:26.371Z")
-	query := sqlds.Query{
+	query := sqlutil.Query{
 		TimeRange: backend.TimeRange{
 			From: from,
 			To:   to,
@@ -46,7 +47,7 @@ func TestMacroFromTimestampFilter(t *testing.T) {
 func TestMacroToTimestampFilter(t *testing.T) {
 	from, _ := time.Parse("2006-01-02T15:04:05.000Z", "2021-11-12T11:45:26.371Z")
 	to, _ := time.Parse("2006-01-02T15:04:05.000Z", "2022-11-12T11:45:26.371Z")
-	query := sqlds.Query{
+	query := sqlutil.Query{
 		TimeRange: backend.TimeRange{
 			From: from,
 			To:   to,
@@ -61,7 +62,7 @@ func TestMacroToTimestampFilter(t *testing.T) {
 func TestMacroTimestampFilter(t *testing.T) {
 	from, _ := time.Parse("2006-01-02T15:04:05.000Z", "2021-11-12T11:45:26.371Z")
 	to, _ := time.Parse("2006-01-02T15:04:05.000Z", "2022-11-12T11:45:26.371Z")
-	query := sqlds.Query{
+	query := sqlutil.Query{
 		TimeRange: backend.TimeRange{
 			From: from,
 			To:   to,
@@ -75,7 +76,7 @@ func TestMacroTimestampFilter(t *testing.T) {
 func TestMacroDateFilter(t *testing.T) {
 	from, _ := time.Parse("2006-01-02T15:04:05.000Z", "2021-11-12T11:45:26.371Z")
 	to, _ := time.Parse("2006-01-02T15:04:05.000Z", "2022-11-12T11:45:26.371Z")
-	query := sqlds.Query{
+	query := sqlutil.Query{
 		TimeRange: backend.TimeRange{
 			From: from,
 			To:   to,
@@ -89,7 +90,7 @@ func TestMacroDateFilter(t *testing.T) {
 func TestMacroDateTimeFilter(t *testing.T) {
 	from, _ := time.Parse("2006-01-02T15:04:05.000Z", "2021-11-12T11:45:26.371Z")
 	to, _ := time.Parse("2006-01-02T15:04:05.000Z", "2022-11-12T11:45:26.371Z")
-	query := sqlds.Query{
+	query := sqlutil.Query{
 		TimeRange: backend.TimeRange{
 			From: from,
 			To:   to,
@@ -102,7 +103,7 @@ func TestMacroDateTimeFilter(t *testing.T) {
 }
 
 func TestMacroVariableFallback(t *testing.T) {
-	query := sqlds.Query{
+	query := sqlutil.Query{
 		RawSQL: "select $__varFallback(fallback, value)",
 	}
 	got, err := macros.VariableFallback(&query, []string{"fallback", "value"})
@@ -111,7 +112,7 @@ func TestMacroVariableFallback(t *testing.T) {
 }
 
 func TestMacroVariableFallbackNoValue(t *testing.T) {
-	query := sqlds.Query{
+	query := sqlutil.Query{
 		RawSQL: "select $__varFallback(fallback, '')",
 	}
 	got, err := macros.VariableFallback(&query, []string{"fallback", ""})
@@ -169,7 +170,7 @@ func TestInterpolate(t *testing.T) {
 	for i, tc := range tests {
 		driver := MockDB{}
 		t.Run(fmt.Sprintf("[%d/%d] %s", i+1, len(tests), tc.name), func(t *testing.T) {
-			query := &sqlds.Query{
+			query := &sqlutil.Query{
 				RawSQL: tc.input,
 				Table:  tableName,
 				Column: tableColumn,

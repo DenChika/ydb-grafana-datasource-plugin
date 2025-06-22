@@ -8,14 +8,14 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/instancemgmt"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
-	"github.com/grafana/sqlds/v2"
+	"github.com/grafana/sqlds/v4"
 )
 
 func NewDatasource(ctx context.Context, settings backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
 	ds := sqlds.NewDatasource(&Ydb{})
 	ds.CustomRoutes = setupCustomRoutes(settings)
 
-	return ds.NewDatasource(settings)
+	return ds.NewDatasource(ctx, settings)
 }
 
 func setupCustomRoutes(settings backend.DataSourceInstanceSettings) map[string]func(http.ResponseWriter, *http.Request) {

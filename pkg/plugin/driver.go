@@ -7,7 +7,7 @@ import (
 	"path"
 	"time"
 
-	"github.com/grafana/sqlds/v2"
+	"github.com/grafana/sqlds/v4"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
@@ -185,7 +185,7 @@ type queryModel struct {
 	RawSql string `json:"rawSql"`
 }
 
-func (h *Ydb) Settings(config backend.DataSourceInstanceSettings) sqlds.DriverSettings {
+func (h *Ydb) Settings(ctx context.Context, config backend.DataSourceInstanceSettings) sqlds.DriverSettings {
 	timeout := 60
 	return sqlds.DriverSettings{
 		Timeout: time.Second * time.Duration(timeout),
@@ -196,7 +196,7 @@ func (h *Ydb) Settings(config backend.DataSourceInstanceSettings) sqlds.DriverSe
 }
 
 // Connect opens a sql.DB connection using datasource settings
-func (h *Ydb) Connect(config backend.DataSourceInstanceSettings, message json.RawMessage) (_ *sql.DB, err error) {
+func (h *Ydb) Connect(ctx context.Context, config backend.DataSourceInstanceSettings, message json.RawMessage) (_ *sql.DB, err error) {
 	defer func() {
 		if err != nil {
 			log.DefaultLogger.Error("Connection with database failed", "error", err.Error())

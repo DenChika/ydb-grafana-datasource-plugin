@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"testing"
@@ -17,6 +18,8 @@ const (
 func TestConnect(t *testing.T) {
 	ydb := Ydb{}
 
+	ctx := context.Background()
+
 	t.Run("anonymous: should not error when valid settings passed", func(t *testing.T) {
 		settings := backend.DataSourceInstanceSettings{
 			JSONData: []byte(
@@ -26,7 +29,7 @@ func TestConnect(t *testing.T) {
 					"dbLocation": "%s"
 				}`, endpoint, dbLocation)),
 		}
-		_, err := ydb.Connect(settings, json.RawMessage{})
+		_, err := ydb.Connect(ctx, settings, json.RawMessage{})
 		assert.Equal(t, nil, err)
 	})
 }
