@@ -3,10 +3,11 @@ package converters_test
 import (
 	"encoding/json"
 	"errors"
-	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
 	"testing"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 
 	"github.com/stretchr/testify/assert"
 
