@@ -208,7 +208,7 @@ func (h *Ydb) Connect(ctx context.Context, config backend.DataSourceInstanceSett
 		return nil, err
 	}
 
-	connectionCtx, connectionCancel := context.WithTimeout(context.Background(), settings.TimeoutDuration)
+	connectionCtx, connectionCancel := context.WithTimeout(ctx, settings.TimeoutDuration)
 	defer connectionCancel()
 
 	ydbDriver, err := createDriver(connectionCtx, settings)
